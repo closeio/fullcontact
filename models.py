@@ -1,4 +1,4 @@
-from mongoengine import *
+from mongoengine import DictField, Document, EmailField, EmbeddedDocument
 
 
 class UserDataDict(Document):
@@ -17,3 +17,7 @@ class UserDataDict(Document):
             if isinstance(v, EmbeddedDocument):
                 out[k] = dict(v._data)
         return out
+
+    def __unicode__(self):
+        return '%s (%s)' % (self.email, self.data_dict.get('status'))
+
