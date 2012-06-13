@@ -10,7 +10,7 @@ class UserDataDict(Document):
         if photos:
             return [photo['url'] for photo in photos]
         return None
-
+    
     def to_dict(self):
         out = dict(self._data)
         for k,v in out.items():

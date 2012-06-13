@@ -35,7 +35,8 @@ def batch_lookup(emails_list, webhook=None):
             if email.find('&') != -1:
                 email = email[:email.find('&')]
             print 'Email: %s' % (email)
-            print 'Status: %s - %s' % (person_json.get('status'), person_json.get('message'))
+            print 'Status: %s - %s' % (person_json.get('status'),
+                                       person_json.get('message'))
 
 
 if __name__ == '__main__':

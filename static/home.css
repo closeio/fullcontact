@@ -1,4 +1,12 @@
-.whatever { 
-    color: red;
+.well button { 
+    width: 200px;
 }
 
+#result {
+    float:right;
+    width: 800px;
+}
+
+.ajax-loader {
+    margin: 100px 360px;
+}

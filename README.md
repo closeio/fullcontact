@@ -10,6 +10,10 @@ Flask
 MongoEngine
 <code>pip install mongoengine</code>
 
+WTForms
+<code>pip install wtforms</code>
+
+
 Usage
 ------------
 
