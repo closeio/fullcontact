@@ -1,0 +1,29 @@
+{%extends 'base.html'%}
+
+
+{%block sideform%}
+    <div id="get" class="well" style="width:250px;float:left;">
+        <form method="GET" action="/result/">
+            <dl>
+                {{ render_field(form.email) }}
+                {{ render_field(form.phone) }}
+                {{ render_field(form.twitter) }}
+                {{ render_field(form.facebook) }}
+            </dl>
+            <div style="text-align:center;">
+                <button class="btn btn-primary">Look it up!</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        $('form').submit(function() {
+            $('#result').html('<img src="/static/ajax-loader.gif" alt="loading" class="ajax-loader"/>');
+            submit_form_ajax($(this), function(response) {
+                $('#result').html(response); 
+            });
+            return false;
+        });
+    </script>
+{%endblock%}
+
