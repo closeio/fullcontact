@@ -13,7 +13,7 @@ MongoEngine
 Usage
 ------------
 
-The process consists of 2 main operations:
+The process consists of 2 parts:
 
 1. Set up Flask server to listen for upcoming Full Contact response.
 2. Send the request to Full Contact.
@@ -21,7 +21,8 @@ The process consists of 2 main operations:
 
 To set up Flask server, run <code>python flask_fullcontact.py</code>. By default,
 it runs on http://localhost:5000/ and the webhook callback is at http://localhost:5000/webhook.
-When testing, you can use <i>proxylocal</i> to make localhost visible to the outside world.
+When testing, you can use <i>proxylocal</i> (http://proxylocal.com/) to make localhost visible
+to the outside world.
 
 
 To request the Full Contact info about some e-mail(s), you can either run the
@@ -36,11 +37,11 @@ usage: fullcontact.py [-h] [-w WEBHOOK] [-e EMAILS [EMAILS ...]] [-f FILE]
 optional arguments:
   * -h, --help            
         show this help message and exit
-  * -w WEBHOOK, --webhook WEBHOOK
+  * -w WEBHOOK, --webhook webhook
         URL to a callback for delayed Full Contact API response
   * -e EMAILS [EMAILS ...], --emails EMAILS [EMAILS ...]
         E-mail addresses to look up
-  * -f FILE, --file FILE  
+  * -f FILE, --file FILE
         CSV file with e-mail addresses
 
 Examples:
@@ -53,7 +54,8 @@ To use the fullcontact.py API, do:
 <code>
 from fullcontact import batch_lookup
 ...
-batch_lookup(list_of_email_addresses, url_to_webhook)
+list_of_emails = ['address@one.com', 'address@two.com', ...]
+batch_lookup(list_of_emails, url_to_webhook)
 </code>
 </pre>
 
