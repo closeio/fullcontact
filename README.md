@@ -31,21 +31,21 @@ fullcontact.py from terminal, or use a <i>batch_lookup</i> function from its API
 To request the data from the terminal, use <code>python fullcontact.py</code> 
 with additional arguments.
 
-<code>
-usage: fullcontact.py [-h] [-w WEBHOOK] [-e EMAILS [EMAILS ...]] [-f FILE]
-</code>
-optional arguments:
-  * -h, --help            
+<pre>
+   usage: fullcontact.py [-h] [-w WEBHOOK] [-e EMAILS [EMAILS ...]] [-f FILE]
+
+  -h, --help            
         show this help message and exit
-  * -w WEBHOOK, --webhook webhook
+  -w WEBHOOK, --webhook webhook
         URL to a callback for delayed Full Contact API response
-  * -e EMAILS [EMAILS ...], --emails EMAILS [EMAILS ...]
+  -e EMAILS [EMAILS ...], --emails EMAILS [EMAILS ...]
         E-mail addresses to look up
-  * -f FILE, --file FILE
+  -f FILE, --file FILE
         CSV file with e-mail addresses
+</pre>
 
 Examples:
-* <code>python fullcontact.py -e some_address@domain.com -w url_to_webhook</code>
+* <code>python fullcontact.py -e address@one.com address@two.com -w url_to_webhook</code>
 * <code>python fullcontact.py -f csv_with_emails -w url_to_webhook</code>
 
 To use the fullcontact.py API, do:
