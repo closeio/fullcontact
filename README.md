@@ -46,7 +46,7 @@ with additional arguments.
 
 Examples:
 * <code>python fullcontact.py -e address@one.com address@two.com -w url_to_webhook</code>
-* <code>python fullcontact.py -f csv_with_emails -w url_to_webhook</code>
+* <code>python fullcontact.py -f csv_with_emails.csv -w url_to_webhook</code>
 
 To use the fullcontact.py API, do:
 
