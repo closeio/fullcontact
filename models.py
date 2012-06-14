@@ -1,9 +1,10 @@
-from mongoengine import DictField, Document, EmailField, EmbeddedDocument
+from mongoengine import DictField, Document, EmailField, EmbeddedDocument, StringField
 
 
-class UserDataDict(Document):
-    email = EmailField(required=True, unique=True)
+class UserData(Document):
     data_dict = DictField(required=True)
+
+    meta = {'allow_inheritance': True}
 
     def list_photo_urls(self):
         photos = self.data_dict.get('photos')
@@ -18,6 +19,43 @@ class UserDataDict(Document):
                 out[k] = dict(v._data)
         return out
 
+    def get_title(self):
+        return 'Generic User Data'
+
+class UserEmailData(UserData):
+    email = EmailField()
+
     def __unicode__(self):
-        return '%s (%s)' % (self.email, self.data_dict.get('status'))
+        return 'E-mail: %s (%s)' % (self.email, self.data_dict.get('status'))
+
+    def get_title(self):
+        return self.email
+
+class UserPhoneData(UserData):
+    phone = StringField(max_length=16)
+
+    def __unicode__(self):
+        return 'Phone: %s (%s)' % (self.phone, self.data_dict.get('status'))
+
+    def get_title(self):
+        return self.phone
+
+class UserTwitterData(UserData):
+    twitter = StringField(max_length=64)
+
+    def __unicode__(self):
+        return 'Twitter: %s (%s)' % (self.twitter, self.data_dict.get('status'))
+    
+    def get_title(self):
+        return self.twitter
+
+class UserFacebookData(UserData):
+    facebookUsername = StringField(max_length=64)
+ 
+    def __unicode__(self):
+        return 'Facebook: %s (%s)' % (self.facebookUsername, self.data_dict.get('status'))
+
+    def get_title(self):
+        return self.facebookUsername
+
 

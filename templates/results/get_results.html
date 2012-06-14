@@ -1,25 +1,25 @@
 <div class="results">
-    {%for ud in userdata%}
-        <h1 style="margin-bottom:10px;">{{ud.email}}</h1>
+        <h1 style="margin-bottom:10px;">{{ud.title}}</h1>
         <h3>Contact Info</h3>
-        {{ud.contactInfo}}
+        {{ud.data_dict.contactInfo}}
         <h3>Photos</h3>
-        {%for url in ud.photos%}
-            <a href="{{url}}">{{url}}</a>
-        {%endfor%}
+        {%if ud.data_dict.photos%}
+            {%for url in ud.list_photo_urls()%}
+                <a href="{{url}}">{{url}}</a><br/>
+            {%endfor%}
+        {%endif%}
         <h3>Demographics</h3>
-        {{ud.demographics}}
+        {{ud.data_dict.demographics}}
         <h3>Digital Footprint</h3>
-        {{ud.digitalFootprint}}
+        {{ud.data_dict.digitalFootprint}}
         <h3>Social Profiles</h3>
-        {%for profile in ud.socialProfiles%}
-            <a href="{{profile.url}}">{{profile.typeName}}</a><br/>
-        {%else%}
-            None
-        {%endfor%}
+        {%if ud.data_dict.socialProfiles%}
+            {%for profile in ud.data_dict.socialProfiles%}
+                {{profile}}<br/>
+            {%endfor%}
+        {%endif%}
         <h3>Organizations</h3>
-        {{ud.organizations}}
+        {{ud.data_dict.organizations}}
         <h3>Enhanced Data</h3>
-        {{ud.enhancedData}}
-    {%endfor%}
+        {{ud.data_dict.enhancedData}}
 </div>

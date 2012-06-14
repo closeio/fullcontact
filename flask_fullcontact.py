@@ -3,7 +3,8 @@ import simplejson
 from flask import Flask, request, render_template
 
 from forms import ContactForm
-from models import UserDataDict
+from models import UserEmailData, UserPhoneData, UserTwitterData, UserFacebookData
+from fullcontact import aggregate_data
 
 app = Flask(__name__)
 
@@ -26,37 +27,17 @@ def result():
     if request.method == 'GET':
         form =  ContactForm(request.args)
         if form.validate():
-            objects = []
+            query = []
             if form.email:
-                try:
-                    objects.append(UserDataDict.objects.get(email=form.email.data,
-                                                            data_dict__status=200))
-                except UserDataDict.DoesNotExist:
-                    pass
+                query.append(('email', form.email.data))
             if form.phone:
-                pass
+                query.append(('phone', form.phone.data.replace('+','')))
             if form.twitter:
-                pass
+                query.append(('twitter', form.twitter.data))
             if form.facebook:
-                pass
-            if objects:
-                # choose distinct info and spit it out
-                pass
-            else:
-                userdata = None
-            userdata = []
-            for obj in objects:
-                data_dict = {}
-                data_dict['email'] = obj.email
-                data_dict['contactInfo'] = obj.data_dict.get('contactInfo')
-                data_dict['photos'] = obj.list_photo_urls()
-                data_dict['demographics'] = obj.data_dict.get('demographics')
-                data_dict['digitalFootprint'] = obj.data_dict.get('digitalFootprint')
-                data_dict['socialProfiles'] = obj.data_dict.get('socialProfiles')
-                data_dict['organizations'] = obj.data_dict.get('organizations')
-                data_dict['enhancedData'] = obj.data_dict.get('enhancedData')
-                userdata.append(data_dict)
-            return render_template('results/get_results.html', userdata=userdata)
+                query.append(('facebookUsername', form.facebook.data))
+            userdata = aggregate_data(query)
+            return render_template('results/get_results.html', ud=userdata)
     elif request.method == 'POST':
         form = ContactForm(request.form)
         if form.validate():
@@ -67,15 +48,33 @@ def result():
 @app.route('/webhook/', methods=['POST'])
 def webhook():
     if request.method == 'POST':
-        email = request.form.get('webhookId')
+        contacttype, contact = request.form['webhookId'].split(':')
+        contact = contact.strip()
         data_dict = simplejson.loads(request.form.get('result'))
-        try:
-            userdata = UserDataDict.objects.get(email=email)
-        except UserDataDict.DoesNotExist:
-            userdata = UserDataDict(email=email)
+        print 'RECEIVED ', contacttype, ':', contact
+        if contacttype == 'email':
+            try:
+                userdata = UserEmailData.objects.get(email=contact)
+            except UserEmailData.DoesNotExist:
+                userdata = UserEmailData(email=contact)
+        elif contacttype == 'phone':
+            try:
+                userdata = UserPhoneData.objects.get(phone=contact)
+            except UserPhoneData.DoesNotExist:
+                userdata = UserPhoneData(phone=contact)
+        elif contacttype == 'twitter':
+            try:
+                userdata = UserTwitterData.objects.get(twitter=contact)
+            except UserTwitterData.DoesNotExist:
+                userdata = UserTwitterData(twitter=contact)
+        elif contacttype == 'facebookUsername':
+            try:
+                userdata = UserFacebookData.objects.get(facebookUsername=contact)
+            except UserFacebookData.DoesNotExist:
+                userdata = UserFacebookData(facebookUsername=contact)
         userdata.data_dict = data_dict
         userdata.save()
-        print 'Email:', email
+        print 'Account (%s): %s' % (contacttype, contact)
         print 'Status:', data_dict.get('status')
         return "Thanks a lot"
 
