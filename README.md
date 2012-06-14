@@ -44,6 +44,12 @@ with additional arguments.
         URL to a callback for delayed Full Contact API response
   -e EMAILS [EMAILS ...], --emails EMAILS [EMAILS ...]
         E-mail addresses to look up
+  -p PHONES [PHONES ...], --phones PHONES [PHONES ...]
+        Phone numbers
+  -t TWITTERS [TWITTERS ...], --twitters TWITTERS [TWITTERS ...]
+        Twitter usernames
+  -fb FACEBOOKS [FACEBOOKS ...], --facebooks FACEBOOKS [FACEBOOKS ...]
+        Facebook usernames
   -f FILE, --file FILE
         CSV file with e-mail addresses
 </pre>
@@ -51,15 +57,31 @@ with additional arguments.
 Examples:
 * <code>python fullcontact.py -e address@one.com address@two.com -w url_to_webhook</code>
 * <code>python fullcontact.py -f csv_with_emails.csv -w url_to_webhook</code>
+* <code>python fullcontact.py -e address@mail.com -p +13037170414 -fb fb_username -w url_to_webhook</code>
 
-To use the fullcontact.py API, do:
+To use the fullcontact.py API, you use lists of tuples (type, data) for both lookup request and data retrieval from DB.
+
+Type can be have one of the following values:
+* 'email'
+* 'phone'
+* 'twitter'
+* 'facebookUsername'
 
 <pre>
 <code>
-from fullcontact import batch_lookup
+from fullcontact import aggregate_data, batch_lookup
 ...
-list_of_emails = ['address@one.com', 'address@two.com', ...]
-batch_lookup(list_of_emails, url_to_webhook)
+data_list = [
+    ('email', 'address@one.com'),
+    ('email', 'address@two.com'),
+    ('phone', '+13037170414'),
+    ('twitter', 'twitter_username'),
+    ('facebookUsername', 'fb_username')
+]
+# to request separate information about every piece of data (and get logs in return)
+response_logs = batch_lookup(data_list, url_to_webhook)
+# to get aggregated information about all the pieces of data
+userdata = aggregate_data(data_list)
 </code>
 </pre>
 

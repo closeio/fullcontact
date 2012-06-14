@@ -2,6 +2,7 @@ import argparse
 import mongoengine
 import requests
 import simplejson
+import urlparse
 
 from models import UserEmailData, UserPhoneData, UserTwitterData, UserFacebookData
 
@@ -41,10 +42,9 @@ def aggregate_data(data_list):
                 objects.append(UserFacebookData.objects.get(facebookUsername=data[1]))
             except UserFacebookData.DoesNotExist:
                 pass
-    # aggregate the data
+    # aggregate the data or return None if nothing found
     if objects:
         userdata = objects[0]
-
         for obj in objects:
             userdata.data_dict = merge_dicts(userdata.data_dict, obj.data_dict)
         userdata.title = 'Aggregated Data'
@@ -52,6 +52,11 @@ def aggregate_data(data_list):
     return None
 
 def merge_dicts(dict1, dict2):
+    """
+    Goes through the dictionary dict2 and adds any distinct data
+    that could not be found in dict1. If the same keys are found, but
+    values differ, the are merged into a list. 
+    """
     for k, v in dict2.items():
         if dict1.get(k): # if dict1 has the key k of dict2
             # if values are dictionaries, use recursion 
@@ -69,7 +74,6 @@ def merge_dicts(dict1, dict2):
         else:
             dict1[k] = dict2[k]
     return dict1
-
 
 
 def batch_lookup(data_list, webhook=None, debug=False):
@@ -94,39 +98,31 @@ def batch_lookup(data_list, webhook=None, debug=False):
             headers={'content-type': 'application/json'},
             data=post_data
         ).json
-
         process_log = []
         for person_url, person_json in data['responses'].items():
             log = {}
-            if 'email=' in person_url:
-                val = scrape_info_from_url(person_url, 'email=')
+            params = urlparse.parse_qs(urlparse.urlparse(person_url).query)
+            if params.get('email'):
                 log['type'] = 'E-mail'
-                log['data'] = val
-            elif 'phone=' in person_url:
-                val = scrape_info_from_url(person_url, 'phone=')
+                log['data'] = params['email']
+            elif params.get('phone'):
                 log['type'] = 'Phone'
-                log['data'] = val
-            elif 'twitter=' in person_url:
-                val = scrape_info_from_url(person_url, 'twitter=')
+                log['data'] = params['phone']
+            elif params.get('twitter'):
                 log['type'] = 'Twitter'
-                log['data'] = val
-            elif 'facebookUsername=' in person_url:
-                val = scrape_info_from_url(person_url, 'facebookUsername=')
+                log['data'] = params['twitter']
+            elif params.get('facebookUsername'):
                 log['type'] = 'Facebook'
-                log['data'] = val
+                log['data'] = params['facebookUsername']
             else:
                 log['type'] = 'Wrong data'
                 log['data'] = person_url
             log['status'] =  '%s - %s' % (person_json.get('status'),
                                           person_json.get('message'))
             process_log.append(log)
-        return process_log
-
-def scrape_info_from_url(person_url, info):
-    ret_val = person_url[person_url.find(info) + len(info):]
-    if ret_val.find('&') != -1:
-        ret_val = ret_val[:ret_val.find('&')]
-    return ret_val
+            if debug:
+                print log
+    return process_log
 
 
 if __name__ == '__main__':
@@ -143,6 +139,7 @@ if __name__ == '__main__':
         csv = open(args.file)
         counter = 0
         for line in csv:
+            # TODO scrape emails with use of regular expressions
             if not line.startswith('id') and line.strip():
                 batch_data.append(
                     ('email', line.split(',')[-2].replace('"',''))
