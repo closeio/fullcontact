@@ -87,7 +87,6 @@ def batch_lookup(data_list, webhook=None, debug=False):
             if webhook:
                 url += '&webhookUrl=' + webhook + '&webhookId=%s:%s' % (data)
             request_urls.append(url)
-        print 'URL:', url
         post_data = simplejson.dumps({'requests' : request_urls})
         data = requests.post(
             'https://api.fullcontact.com/v2/batch.json',

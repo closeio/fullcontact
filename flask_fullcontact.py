@@ -40,12 +40,10 @@ def result():
             return render_template('results/get_results.html', ud=userdata)
     elif request.method == 'POST':
         batch_data = request.form.get('batch_data')
-        print 'BATCH', batch_data
         batch_data = batch_data.replace('facebook', 'facebookUsername').split(',')
         for i in range(len(batch_data)):
             batch_data[i] = tuple(batch_data[i].split(':'))
-        print 'PROCESSED BATCH', batch_data
-        response = batch_lookup(batch_data, 'http://www.wp.pl/')
+        response = batch_lookup(batch_data, request.url_root+'webhook/')
         return render_template('results/post_results.html', response=response)
 
 
