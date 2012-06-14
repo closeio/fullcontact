@@ -1,5 +1,6 @@
 import argparse
 import mongoengine
+import re
 import requests
 import simplejson
 from urllib import quote
@@ -149,13 +150,12 @@ if __name__ == '__main__':
     batch_data = []
     if args.file:
         csv = open(args.file)
-        counter = 0
+        mailsrch = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')  # email regex
+        # find all email addresses in csv file and append them to batch_data
         for line in csv:
-            # TODO scrape emails with use of regular expressions
-            if not line.startswith('id') and line.strip():
-                batch_data.append(
-                    ('email', line.split(',')[-2].replace('"',''))
-                )
+            mails = mailsrch.findall(line)
+            for mail in mails:
+                batch_data.append(('email', mail))
         csv.close()
     if args.emails:
         for email in args.emails:
