@@ -1,4 +1,5 @@
 <div class="results">
+    {%if ud%}
         <h1 style="margin-bottom:10px;">{{ud.title}}</h1>
         <h3>Contact Info</h3>
         {{ud.data_dict.contactInfo}}
@@ -22,4 +23,7 @@
         {{ud.data_dict.organizations}}
         <h3>Enhanced Data</h3>
         {{ud.data_dict.enhancedData}}
+    {%else%}
+        <h1>No data found</h1>
+    {%endif%}
 </div>
