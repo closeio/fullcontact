@@ -46,6 +46,7 @@
         });
 
         $('#batch-data-form').submit(function() {
+            $('#result').html('<img src="/static/ajax-loader.gif" alt="loading" class="ajax-loader"/>');
             var batch_data = $('#id_batch_data');
             data_tuples = new Array();
             $('.singlelookup input').each(function() {

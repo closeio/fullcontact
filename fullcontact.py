@@ -2,7 +2,8 @@ import argparse
 import mongoengine
 import requests
 import simplejson
-import urlparse
+from urllib import quote
+from urllib2 import urlparse
 
 from models import UserEmailData, UserPhoneData, UserTwitterData, UserFacebookData
 
@@ -19,6 +20,10 @@ FULL_CONTACT_API_KEY = 'a869e356aca859d6'
 
 
 def aggregate_data(data_list):
+    """
+    Given a list of contact data of different type, returns all the
+    aggregated information that can be found about given contact.
+    """
     objects = []
     # get all the models
     for data in data_list:
@@ -51,6 +56,7 @@ def aggregate_data(data_list):
         return userdata
     return None
 
+
 def merge_dicts(dict1, dict2):
     """
     Goes through the dictionary dict2 and adds any distinct data
@@ -77,6 +83,10 @@ def merge_dicts(dict1, dict2):
 
 
 def batch_lookup(data_list, webhook=None, debug=False):
+    """
+    Sends requests to the Full Contact API and returns the status logs of those requests.
+    If debug is True, it also prints the logs
+    """
     # divide the data into chunks of 20 (max number for a single batch request)
     data_chunks = []
     counter = 0
@@ -87,7 +97,9 @@ def batch_lookup(data_list, webhook=None, debug=False):
     for chunk in data_chunks:
         request_urls = []
         for data in chunk:
-            url = 'https://api.fullcontact.com/v2/person.json?%s=%s' % data
+            # escape params
+            data = (quote(data[0].encode('utf-8')), quote(data[1].encode('utf-8')))
+            url = 'https://api.fullcontact.com/v2/person.json?%s=%s' % (data)
             if webhook:
                 url += '&webhookUrl=' + webhook + '&webhookId=%s:%s' % (data)
             request_urls.append(url)
