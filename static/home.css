@@ -2,6 +2,18 @@
     width: 200px;
 }
 
+#post button {
+    width:auto;
+}
+
+.singlelookup input#phone,
+.singlelookup input#email,
+.singlelookup input#twitter,
+.singlelookup input#facebook {
+    display: none;
+    width: 245px;
+}
+
 #result {
     float:right;
     width: 800px;

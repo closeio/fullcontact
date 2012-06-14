@@ -1,0 +1,8 @@
+<div class="results">
+    <h1>Report</h1><br/><br/>
+    {%if response%}
+        {%for res in response%}
+            <h3>{{res}}</h3><br/>
+        {%endfor%}
+    {%endif%}
+</div>

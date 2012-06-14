@@ -1,5 +1,65 @@
 {%extends 'base.html'%}
 
 {%block sideform%}
-    WHATEVER
+    <div id="post" class="well" style="width:262px;float:left;">
+        <div class="singlelookup">
+            <div class="btn-group" data-toggle="buttons-radio">
+                <button class="btn email">E-mail</button>
+                <button class="btn phone">Phone</button>
+                <button class="btn twitter">Twitter</button>
+                <button class="btn facebook">Facebook</button><br/><br/>
+                {{ render_input(form.email) }}
+                {{ render_input(form.phone) }}
+                {{ render_input(form.twitter) }}
+                {{ render_input(form.facebook) }}
+            </div>
+        </div>
+        <button id="next-row" class="btn btn-success">Add next</button>
+        <form id="batch-data-form" method="POST" action="/result/" style="margin-top:10px;">
+            <input type="hidden" name="batch_data" id="id_batch_data"/>
+            <button id="submit" class="btn btn-primary">Start Processing</button>
+        </form>
+    </div>
+
+    <script>
+        $('.singlelookup .btn').live('click', function() {
+            $this = $(this);
+            var parent_div = $this.parent();
+            parent_div.find('input').hide().val('');
+            parent_div.find('.btn').removeClass('active');
+            if($this.hasClass('email'))
+                parent_div.find('#email').show()
+            if($this.hasClass('phone'))
+                parent_div.find('#phone').show()
+            if($this.hasClass('twitter'))
+                parent_div.find('#twitter').show()
+            if($this.hasClass('facebook'))
+                parent_div.find('#facebook').show()
+            $this.addClass('active');
+        });
+
+        $('#next-row').click(function() {
+            var next_lookup = $($('.singlelookup')[0]).clone();
+            next_lookup.find('input').val('');
+            $(this).before(next_lookup);
+            next_lookup.find('.email').click();
+        });
+
+        $('#batch-data-form').submit(function() {
+            var batch_data = $('#id_batch_data');
+            data_tuples = new Array();
+            $('.singlelookup input').each(function() {
+                if($(this).val().length > 0) {
+                    data_tuples.push($(this).attr('id')+':'+$(this).val());
+                }
+            });
+            batch_data.val(data_tuples.toString());
+            submit_form_ajax($(this), function(response) {
+                $('#result').html(response);
+            });
+            return false;
+        });
+
+        $('.email').click();
+    </script>
 {%endblock%}

@@ -4,7 +4,7 @@ from flask import Flask, request, render_template
 
 from forms import ContactForm
 from models import UserEmailData, UserPhoneData, UserTwitterData, UserFacebookData
-from fullcontact import aggregate_data
+from fullcontact import aggregate_data, batch_lookup
 
 app = Flask(__name__)
 
@@ -39,10 +39,14 @@ def result():
             userdata = aggregate_data(query)
             return render_template('results/get_results.html', ud=userdata)
     elif request.method == 'POST':
-        form = ContactForm(request.form)
-        if form.validate():
-            response = ''
-            return render_template('results/post_result.html', response)
+        batch_data = request.form.get('batch_data')
+        print 'BATCH', batch_data
+        batch_data = batch_data.replace('facebook', 'facebookUsername').split(',')
+        for i in range(len(batch_data)):
+            batch_data[i] = tuple(batch_data[i].split(':'))
+        print 'PROCESSED BATCH', batch_data
+        response = batch_lookup(batch_data, 'http://www.wp.pl/')
+        return render_template('results/post_results.html', response=response)
 
 
 @app.route('/webhook/', methods=['POST'])

@@ -10,3 +10,7 @@
   {% endif %}
   </dd>
 {% endmacro %}
+
+{% macro render_input(field) %}
+    {{ field(**kwargs)|safe }}
+{% endmacro %}

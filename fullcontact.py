@@ -59,17 +59,13 @@ def merge_dicts(dict1, dict2):
                 dict1[k] = merge_dicts(dict1[k], dict2[k])
             # compare values of keys
             elif dict2[k] != dict1[k]:
+                # if value is list, append distinct results from dict2
                 if isinstance(dict1[k], list):
                     for item in dict2[k]:
                         if item not in dict1[k]:
                             dict1[k].append(item)
                 else:
-                    if isinstance(dict2[k], list):
-                        for item in dict2[k]:
-                            if item not in dict1[k]:
-                                dict1[k].append(item)
-                    else:
-                        dict1[k] = [dict1[k], dict2[k]]
+                    dict1[k] = [dict1[k], dict2[k]]
         else:
             dict1[k] = dict2[k]
     return dict1
@@ -90,8 +86,8 @@ def batch_lookup(data_list, webhook=None, debug=False):
             url = 'https://api.fullcontact.com/v2/person.json?%s=%s' % data
             if webhook:
                 url += '&webhookUrl=' + webhook + '&webhookId=%s:%s' % (data)
-            print url
             request_urls.append(url)
+        print 'URL:', url
         post_data = simplejson.dumps({'requests' : request_urls})
         data = requests.post(
             'https://api.fullcontact.com/v2/batch.json',
@@ -99,24 +95,33 @@ def batch_lookup(data_list, webhook=None, debug=False):
             headers={'content-type': 'application/json'},
             data=post_data
         ).json
-        if debug:
-            for person_url, person_json in data['responses'].items():
-                if 'email=' in person_url:
-                    val = scrape_info_from_url(person_url, 'email=')
-                    print 'Email: %s' % (val)
-                elif 'phone=' in person_url:
-                    val = scrape_info_from_url(person_url, 'phone=')
-                    print 'Phone: %s' % (val)
-                elif 'twitter=' in person_url:
-                    val = scrape_info_from_url(person_url, 'twitter=')
-                    print 'Twitter: %s' % (val)
-                elif 'facebookUsername=' in person_url:
-                    val = scrape_info_from_url(person_url, 'facebookUsername=')
-                    print 'Facebook: %s' % (val)
-                else:
-                    print 'Wrong data'
-                print 'Status: %s - %s' % (person_json.get('status'),
-                                           person_json.get('message'))
+
+        process_log = []
+        for person_url, person_json in data['responses'].items():
+            log = {}
+            if 'email=' in person_url:
+                val = scrape_info_from_url(person_url, 'email=')
+                log['type'] = 'E-mail'
+                log['data'] = val
+            elif 'phone=' in person_url:
+                val = scrape_info_from_url(person_url, 'phone=')
+                log['type'] = 'Phone'
+                log['data'] = val
+            elif 'twitter=' in person_url:
+                val = scrape_info_from_url(person_url, 'twitter=')
+                log['type'] = 'Twitter'
+                log['data'] = val
+            elif 'facebookUsername=' in person_url:
+                val = scrape_info_from_url(person_url, 'facebookUsername=')
+                log['type'] = 'Facebook'
+                log['data'] = val
+            else:
+                log['type'] = 'Wrong data'
+                log['data'] = person_url
+            log['status'] =  '%s - %s' % (person_json.get('status'),
+                                          person_json.get('message'))
+            process_log.append(log)
+        return process_log
 
 def scrape_info_from_url(person_url, info):
     ret_val = person_url[person_url.find(info) + len(info):]
