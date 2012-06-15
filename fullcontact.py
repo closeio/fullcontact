@@ -72,10 +72,13 @@ def merge_dicts(dict1, dict2):
             # compare values of keys
             elif dict2[k] != dict1[k]:
                 # if value is list, append distinct results from dict2
-                if isinstance(dict1[k], list):
+                if isinstance(dict2[k], list):
                     for item in dict2[k]:
                         if item not in dict1[k]:
                             dict1[k].append(item)
+                elif isinstance(dict1[k], list):
+                    if dict2[k] not in dict1[k]:
+                        dict1[k].append(dict2[k])
                 else:
                     dict1[k] = [dict1[k], dict2[k]]
         else:
