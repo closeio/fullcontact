@@ -22,8 +22,11 @@ FULL_CONTACT_API_KEY = 'a869e356aca859d6'
 
 def aggregate_data(data_list):
     """
-    Given a list of contact data of different type, returns all the
+    Given a list of contact data of different type, return all the
     aggregated information that can be found about given contact.
+
+    Arguments:
+    data_list -- the list of tuples of contact data in the form (type, data)
     """
     objects = []
     # get all the models
@@ -60,9 +63,13 @@ def aggregate_data(data_list):
 
 def merge_dicts(dict1, dict2):
     """
-    Goes through the dictionary dict2 and adds any distinct data
+    Go through the dictionary dict2 and add any distinct data
     that could not be found in dict1. If the same keys are found, but
-    values differ, the are merged into a list. 
+    values differ, merge them into a list.
+
+    Arguments:
+    dict1 -- dictionary that you want the data appended to
+    dict2 -- dictionary, which data should be appended to dict1 (if distinct)
     """
     for k, v in dict2.items():
         if dict1.get(k): # if dict1 has the key k of dict2
@@ -88,8 +95,13 @@ def merge_dicts(dict1, dict2):
 
 def batch_lookup(data_list, webhook=None, debug=False):
     """
-    Sends requests to the Full Contact API and returns the status logs of those requests.
-    If debug is True, it also prints the logs
+    Send requests to the Full Contact API and return the status logs of those requests.
+    If debug is True, print the logs.
+
+    Arguments:
+    data_list -- the list of tuples of contact data in the form (type, data)
+    webhook -- url with the callback function that handles responses from Full Contact
+    debug -- boolean specifying whether some debug information should be printed to the console.
     """
     # divide the data into chunks of 20 (max number for a single batch request)
     data_chunks = []
@@ -143,6 +155,7 @@ def batch_lookup(data_list, webhook=None, debug=False):
 
 
 def emails_from_file(filestream):
+    """ Given a filestream, scrape e-mail addresses. """
     emails = []
     mailsrch = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')  # email regex
     # find all email addresses in csv file and append them to batch_data

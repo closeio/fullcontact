@@ -41,9 +41,7 @@ def result():
     elif request.method == 'POST':
         if request.files.get('file'):
             # get emails from file, if one was uploaded
-            print 'FILES', request.files
             batch_data = emails_from_file(request.files.get('file'))
-            print batch_data
         else:
             batch_data = request.form.get('batch_data')
             if batch_data:
@@ -63,7 +61,8 @@ def webhook():
         contacttype, contact = request.form['webhookId'].split(':')
         contact = contact.strip()
         data_dict = simplejson.loads(request.form.get('result'))
-        print 'RECEIVED ', contacttype, ':', contact
+        if app.debug:
+            print 'RECEIVED ', contacttype, ':', contact
         if contacttype == 'email':
             try:
                 userdata = UserEmailData.objects.get(email=contact)
@@ -86,8 +85,9 @@ def webhook():
                 userdata = UserFacebookData(facebookUsername=contact)
         userdata.data_dict = data_dict
         userdata.save()
-        print 'Account (%s): %s' % (contacttype, contact)
-        print 'Status:', data_dict.get('status')
+        if app.debug:
+            print 'Account (%s): %s' % (contacttype, contact)
+            print 'Status:', data_dict.get('status')
         return "Thanks a lot"
 
 
