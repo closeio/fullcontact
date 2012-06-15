@@ -3,7 +3,7 @@
 
 {%block sideform%}
     <div id="get" class="well" style="width:250px;float:left;">
-        <form method="GET" action="/result/">
+        <form method="GET" action="{{ url_for('result') }}">
             <dl>
                 {{ render_field(form.email) }}
                 {{ render_field(form.phone) }}

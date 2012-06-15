@@ -3,7 +3,7 @@
 {%block sideform%}
     <div id="post" class="well" style="width:300px;float:left;">
         <h3 style="margin-bottom:10px;">Submit a file...</h3>
-        <form id="file-form" action="/result/" method="POST" target="upload-target" enctype="multipart/form-data">
+        <form id="file-form" action="{{ url_for('result') }}" method="POST" target="upload-target" enctype="multipart/form-data">
             {{ render_input(form.file) }}
         </form>
         <iframe name="upload-target" id="upload-target" style="display:none;"></iframe>
@@ -20,7 +20,7 @@
             {{ render_input(form.twitter) }}
             {{ render_input(form.facebook) }}
         </div>
-        <form id="batch-data-form" method="POST" action="/result/" style="margin-top:10px;">
+        <form id="batch-data-form" method="POST" action="{{ url_for('result') }}" style="margin-top:10px;">
             <input type="hidden" name="batch_data" id="id_batch_data"/>
         </form>
         <button id="next-row" class="btn btn-success">Add next</button><br/><br/>
@@ -28,7 +28,7 @@
     </div>
 
     <script>
-        var ajax_loader = '<img src="/static/ajax-loader.gif" alt="loading" class="ajax-loader"/>';
+        var ajax_loader = '<img src="{{url_for('static', filename='ajax-loader.gif') }}" alt="loading" class="ajax-loader"/>';
         $('.singlelookup .btn').live('click', function() {
             $this = $(this);
             var parent_div = $this.parent().parent();

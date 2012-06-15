@@ -1,6 +1,6 @@
 import mongoengine
 import simplejson
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, url_for
 
 from forms import ContactForm
 from models import UserEmailData, UserPhoneData, UserTwitterData, UserFacebookData
@@ -49,7 +49,7 @@ def result():
                 for i in range(len(batch_data)):
                     batch_data[i] = tuple(batch_data[i].split(':'))
         if batch_data:
-            response = batch_lookup(batch_data, request.url_root+'webhook/')
+            response = batch_lookup(batch_data, request.url_root + url_for('webhook')[1:])
         else:
             response = ["Nothing to process"]
         return render_template('results/post_results.html', response=response)
