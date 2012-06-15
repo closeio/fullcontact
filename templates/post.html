@@ -1,40 +1,41 @@
 {%extends 'base.html'%}
 
 {%block sideform%}
-    <div id="post" class="well" style="width:262px;float:left;">
+    <div id="post" class="well" style="width:300px;float:left;">
+        <h3 style="margin-bottom:10px;">Submit a file...</h3>
+        <form id="file-form" action="/result/" method="POST" target="upload-target" enctype="multipart/form-data">
+            {{ render_input(form.file) }}
+        </form>
+        <iframe name="upload-target" id="upload-target" style="display:none;"></iframe>
+        <h3 style="margin-bottom:10px">... or type it yourself</h3>
         <div class="singlelookup">
-            <div class="btn-group" data-toggle="buttons-radio">
+            <div class="btn-group" data-toggle="buttons-radio" style="margin-bottom:10px;">
                 <button class="btn email">E-mail</button>
                 <button class="btn phone">Phone</button>
                 <button class="btn twitter">Twitter</button>
-                <button class="btn facebook">Facebook</button><br/><br/>
-                {{ render_input(form.email) }}
-                {{ render_input(form.phone) }}
-                {{ render_input(form.twitter) }}
-                {{ render_input(form.facebook) }}
+                <button class="btn facebook">Facebook</button>
             </div>
+            {{ render_input(form.email) }}
+            {{ render_input(form.phone) }}
+            {{ render_input(form.twitter) }}
+            {{ render_input(form.facebook) }}
         </div>
-        <button id="next-row" class="btn btn-success">Add next</button>
         <form id="batch-data-form" method="POST" action="/result/" style="margin-top:10px;">
             <input type="hidden" name="batch_data" id="id_batch_data"/>
-            <button id="submit" class="btn btn-primary">Start Processing</button>
         </form>
+        <button id="next-row" class="btn btn-success">Add next</button><br/><br/>
+        <button id="submit" class="btn btn-primary">Start Processing</button>
     </div>
 
     <script>
+        var ajax_loader = '<img src="/static/ajax-loader.gif" alt="loading" class="ajax-loader"/>';
         $('.singlelookup .btn').live('click', function() {
             $this = $(this);
-            var parent_div = $this.parent();
+            var parent_div = $this.parent().parent();
             parent_div.find('input').hide().val('');
             parent_div.find('.btn').removeClass('active');
-            if($this.hasClass('email'))
-                parent_div.find('#email').show()
-            if($this.hasClass('phone'))
-                parent_div.find('#phone').show()
-            if($this.hasClass('twitter'))
-                parent_div.find('#twitter').show()
-            if($this.hasClass('facebook'))
-                parent_div.find('#facebook').show()
+            var selector = $this.attr('class').replace('btn ','');
+            parent_div.find('#'+selector).show();
             $this.addClass('active');
         });
 
@@ -45,8 +46,12 @@
             next_lookup.find('.email').click();
         });
 
+        $('#submit').click(function() {
+            $('#batch-data-form').submit();
+        });
+
         $('#batch-data-form').submit(function() {
-            $('#result').html('<img src="/static/ajax-loader.gif" alt="loading" class="ajax-loader"/>');
+            $('#result').html(ajax_loader);
             var batch_data = $('#id_batch_data');
             data_tuples = new Array();
             $('.singlelookup input').each(function() {
@@ -55,10 +60,24 @@
                 }
             });
             batch_data.val(data_tuples.toString());
-            submit_form_ajax($(this), function(response) {
-                $('#result').html(response);
-            });
+            // submit the file first (if specified)
+            if($('#file').val().length > 0) {
+                $('#file-form').submit();
+            } else {
+                // submit the rest of the data
+                submit_form_ajax($(this), function(response) {
+                    $('#result').html(response);
+                });
+            }
             return false;
+        });
+
+        $('#upload-target').load(function() {
+            var data = $(this).contents().find('body').html();
+            // submit the rest of the data
+            submit_form_ajax($('#batch-data-form'), function(response) {
+                $('#result').html(data + response);
+            });
         });
 
         $('.email').click();

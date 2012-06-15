@@ -1,4 +1,4 @@
-from wtforms import Form, TextField, validators
+from wtforms import FileField, Form, TextField, validators
 
 
 class ContactForm(Form):
@@ -6,4 +6,5 @@ class ContactForm(Form):
     phone = TextField('Phone', [validators.Optional(),])
     twitter = TextField('Twitter', [validators.Optional(),])
     facebook = TextField('Facebook', [validators.Optional(),])
+    file = FileField('File', [validators.Optional(),])
 

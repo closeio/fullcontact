@@ -4,7 +4,7 @@ from flask import Flask, request, render_template
 
 from forms import ContactForm
 from models import UserEmailData, UserPhoneData, UserTwitterData, UserFacebookData
-from fullcontact import aggregate_data, batch_lookup
+from fullcontact import aggregate_data, batch_lookup, emails_from_file
 
 app = Flask(__name__)
 
@@ -39,11 +39,21 @@ def result():
             userdata = aggregate_data(query)
             return render_template('results/get_results.html', ud=userdata)
     elif request.method == 'POST':
-        batch_data = request.form.get('batch_data')
-        batch_data = batch_data.replace('facebook', 'facebookUsername').split(',')
-        for i in range(len(batch_data)):
-            batch_data[i] = tuple(batch_data[i].split(':'))
-        response = batch_lookup(batch_data, request.url_root+'webhook/')
+        if request.files.get('file'):
+            # get emails from file, if one was uploaded
+            print 'FILES', request.files
+            batch_data = emails_from_file(request.files.get('file'))
+            print batch_data
+        else:
+            batch_data = request.form.get('batch_data')
+            if batch_data:
+                batch_data = batch_data.replace('facebook', 'facebookUsername').split(',')
+                for i in range(len(batch_data)):
+                    batch_data[i] = tuple(batch_data[i].split(':'))
+        if batch_data:
+            response = batch_lookup(batch_data, request.url_root+'webhook/')
+        else:
+            response = ["Nothing to process"]
         return render_template('results/post_results.html', response=response)
 
 

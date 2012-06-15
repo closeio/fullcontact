@@ -95,14 +95,16 @@ def batch_lookup(data_list, webhook=None, debug=False):
         data_chunks.append(data_list[counter:counter+20])
         counter += 20
     # send the request for each chunk
+    process_log = []
     for chunk in data_chunks:
         request_urls = []
         for data in chunk:
             # escape params
-            data = (quote(data[0].encode('utf-8')), quote(data[1].encode('utf-8')))
-            url = 'https://api.fullcontact.com/v2/person.json?%s=%s' % (data)
-            if webhook:
-                url += '&webhookUrl=' + webhook + '&webhookId=%s:%s' % (data)
+            if data:
+                data = (quote(data[0].encode('utf-8')), quote(data[1].encode('utf-8')))
+                url = 'https://api.fullcontact.com/v2/person.json?%s=%s' % (data)
+                if webhook:
+                    url += '&webhookUrl=' + webhook + '&webhookId=%s:%s' % (data)
             request_urls.append(url)
         post_data = simplejson.dumps({'requests' : request_urls})
         data = requests.post(
@@ -111,7 +113,6 @@ def batch_lookup(data_list, webhook=None, debug=False):
             headers={'content-type': 'application/json'},
             data=post_data
         ).json
-        process_log = []
         for person_url, person_json in data['responses'].items():
             log = {}
             params = urlparse.parse_qs(urlparse.urlparse(person_url).query)
@@ -138,6 +139,17 @@ def batch_lookup(data_list, webhook=None, debug=False):
     return process_log
 
 
+def emails_from_file(filestream):
+    emails = []
+    mailsrch = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')  # email regex
+    # find all email addresses in csv file and append them to batch_data
+    for line in filestream:
+        mails = mailsrch.findall(line)
+        for mail in mails:
+            emails.append(('email', mail))
+    return emails
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-w', '--webhook', help='URL to a callback for delayed Full Contact API response')
@@ -145,18 +157,13 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--phones', nargs='+', help='Phone numbers')
     parser.add_argument('-fb', '--facebooks', nargs='+', help='Facebook usernames')
     parser.add_argument('-t', '--twitters', nargs='+', help='Twitter usernames')
-    parser.add_argument('-f', '--file', help='CSV file with e-mail addresses')
+    parser.add_argument('-f', '--file', help='File from which you want e-mail addresses scraped')
     args = parser.parse_args()
     batch_data = []
     if args.file:
-        csv = open(args.file)
-        mailsrch = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')  # email regex
-        # find all email addresses in csv file and append them to batch_data
-        for line in csv:
-            mails = mailsrch.findall(line)
-            for mail in mails:
-                batch_data.append(('email', mail))
-        csv.close()
+        filestream = open(args.file)
+        batch_data.extend(emails_from_file(filestream))
+        filestream.close()
     if args.emails:
         for email in args.emails:
             batch_data.append(('email', email))

@@ -6,12 +6,21 @@
     width:auto;
 }
 
+#post .btn-success,
+#post .btn-primary {
+    width: 300px;
+}
+
 .singlelookup input#phone,
 .singlelookup input#email,
 .singlelookup input#twitter,
 .singlelookup input#facebook {
     display: none;
-    width: 245px;
+    width: 287px;
+}
+
+.singlelookup input#file {
+    margin-bottom: 10px;
 }
 
 #result {
