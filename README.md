@@ -24,7 +24,7 @@ The process consists of 2 parts:
 
 
 To set up Flask server, run <code>python flask_fullcontact.py</code>. By default,
-it runs on http://localhost:5000/ and the webhook callback is at http://localhost:5000/webhook.
+it runs on http://localhost:5000/ and the webhook callback is at http://localhost:5000/webhook/.
 When testing, you can use <i>proxylocal</i> (http://proxylocal.com/) to make localhost visible
 to the outside world.
 
@@ -85,3 +85,16 @@ userdata = aggregate_data(data_list)
 </code>
 </pre>
 
+Testing
+---------------
+
+There is a test.py file included for testing purposes. Before you run it, make sure the Flask server is
+working and is public via <i>proxylocal</i>
+
+<pre>
+<code>
+python flask_fullcontact.py
+proxylocal 5000 --host fullcontact
+python test.py
+</code>
+</pre>
