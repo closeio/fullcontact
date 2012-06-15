@@ -5,6 +5,8 @@ def main():
     # have the webhook working by:
     #   1. python flask_fullcontact.py
     #   2. proxylocal 5000 --host fullcontact
+    # in Flask, the address of the webhook can be determined by using
+    # request.url_root and url_for function
     webhook = 'http://fullcontact.t.proxylocal.com/webhook/'
     # request lookup for emails, phone, twitter and facebook
     data_list = [
