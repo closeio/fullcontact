@@ -137,17 +137,17 @@ def batch_lookup(data_list, webhook=None, debug=False):
             log = {}
             params = urlparse.parse_qs(urlparse.urlparse(person_url).query)
             if params.get('email'):
-                log['type'] = 'E-mail'
-                log['data'] = params['email']
+                log['type'] = 'email'
+                log['data'] = params['email'][0]
             elif params.get('phone'):
-                log['type'] = 'Phone'
-                log['data'] = params['phone']
+                log['type'] = 'phone'
+                log['data'] = params['phone'][0]
             elif params.get('twitter'):
-                log['type'] = 'Twitter'
-                log['data'] = params['twitter']
+                log['type'] = 'twitter'
+                log['data'] = params['twitter'][0]
             elif params.get('facebookUsername'):
-                log['type'] = 'Facebook'
-                log['data'] = params['facebookUsername']
+                log['type'] = 'facebookUsername'
+                log['data'] = params['facebookUsername'][0]
             else:
                 log['type'] = 'Wrong data'
                 log['data'] = person_url

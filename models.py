@@ -1,10 +1,8 @@
 from mongoengine import DictField, Document, EmailField, EmbeddedDocument, StringField
 
 
-class UserData(Document):
+class UserData():
     data_dict = DictField(required=True)
-
-    meta = {'allow_inheritance': True}
 
     def list_photo_urls(self):
         photos = self.data_dict.get('photos')
@@ -24,13 +22,12 @@ class UserData(Document):
             return self.data_dict.pop(fieldname)
         return None
 
-
-
     def get_title(self):
         return 'Generic User Data'
 
-class UserEmailData(UserData):
-    email = EmailField()
+
+class UserEmailData(UserData, Document):
+    email = EmailField(primary_key=True)
 
     def __unicode__(self):
         return 'E-mail: %s (%s)' % (self.email, self.data_dict.get('status'))
@@ -38,8 +35,9 @@ class UserEmailData(UserData):
     def get_title(self):
         return self.email
 
-class UserPhoneData(UserData):
-    phone = StringField(max_length=16)
+
+class UserPhoneData(UserData, Document):
+    phone = StringField(max_length=16, primary_key=True)
 
     def __unicode__(self):
         return 'Phone: %s (%s)' % (self.phone, self.data_dict.get('status'))
@@ -47,8 +45,9 @@ class UserPhoneData(UserData):
     def get_title(self):
         return self.phone
 
-class UserTwitterData(UserData):
-    twitter = StringField(max_length=64)
+
+class UserTwitterData(UserData, Document):
+    twitter = StringField(max_length=64, primary_key=True)
 
     def __unicode__(self):
         return 'Twitter: %s (%s)' % (self.twitter, self.data_dict.get('status'))
@@ -56,8 +55,9 @@ class UserTwitterData(UserData):
     def get_title(self):
         return self.twitter
 
-class UserFacebookData(UserData):
-    facebookUsername = StringField(max_length=64)
+
+class UserFacebookData(UserData, Document):
+    facebookUsername = StringField(max_length=64, primary_key=True)
  
     def __unicode__(self):
         return 'Facebook: %s (%s)' % (self.facebookUsername, self.data_dict.get('status'))
