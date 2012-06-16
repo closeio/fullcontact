@@ -1,7 +1,8 @@
 import mongoengine
 import simplejson
-from flask import Flask, request, render_template, url_for
 
+from flask import Flask, request, render_template, url_for
+from bson import json_util
 from forms import ContactForm
 from models import UserEmailData, UserPhoneData, UserTwitterData, UserFacebookData
 from fullcontact import aggregate_data, batch_lookup, emails_from_file
@@ -89,6 +90,27 @@ def webhook():
             print 'Account (%s): %s' % (contacttype, contact)
             print 'Status:', data_dict.get('status')
         return "Thanks a lot"
+
+@app.route('/get.json', methods=['POST'])
+def get_json():
+    """ Get JSON data in POST message and return the aggregated result """
+    print 'RECEIVED', request.json.get('data')
+    data_list = request.json.get('data')
+    userdata = aggregate_data(data_list)
+    if userdata:
+        return simplejson.dumps(userdata.data_dict, default=json_util.default)
+    return None
+
+@app.route('/post.json', methods=['POST'])
+def request_json():
+    """
+    Get JSON data in POST message and send a request to Full Contact API.
+    Return statuses of the requests.
+    """
+    print 'RECEIVED', request.json.get('data')
+    data_list = request.json.get('data')
+    logs = batch_lookup(data_list, request.url_root + url_for('webhook')[1:])
+    return simplejson.dumps(logs)
 
 
 if __name__ == '__main__':
