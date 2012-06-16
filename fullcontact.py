@@ -54,7 +54,12 @@ def aggregate_data(data_list):
     # aggregate the data or return None if nothing found
     if objects:
         userdata = objects[0]
+        # pop the status and message information - we don't need that in the response
+        userdata.safe_pop('status')
+        userdata.safe_pop('message')
         for obj in objects:
+            obj.safe_pop('status')
+            obj.safe_pop('message')
             userdata.data_dict = merge_dicts(userdata.data_dict, obj.data_dict)
         userdata.title = 'Aggregated Data'
         return userdata

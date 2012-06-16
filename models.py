@@ -19,6 +19,13 @@ class UserData(Document):
                 out[k] = dict(v._data)
         return out
 
+    def safe_pop(self, fieldname):
+        if self.data_dict.has_key(fieldname):
+            return self.data_dict.pop(fieldname)
+        return None
+
+
+
     def get_title(self):
         return 'Generic User Data'
 
