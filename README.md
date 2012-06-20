@@ -10,7 +10,7 @@ Flask
 MongoEngine
 <code>pip install mongoengine</code>
 
-WTForms
+WTForms 
 <code>pip install wtforms</code>
 
 
@@ -28,9 +28,47 @@ it runs on http://localhost:5000/ and the webhook callback is at http://localhos
 When testing, you can use <i>proxylocal</i> (http://proxylocal.com/) to make localhost visible
 to the outside world.
 
+To request the Full Contact info about some e-mail(s), you can run the fullcontact.py from 
+terminal, use a <i>batch_lookup</i> function from its API or access the Web API.
 
-To request the Full Contact info about some e-mail(s), you can either run the
-fullcontact.py from terminal, or use a <i>batch_lookup</i> function from its API.
+Web API
+-------------
+
+Web API consists of 3 functions:
+* request contact lookup via /api/ POST message
+<pre>
+    {'data': [
+        ['email', 'wojcikstefan@gmail.com'],
+        ['phone', '+48601941311'],
+        ['twitter', 'stefanwojcik'],
+        ['facebookUsername', 'wojcikstefan']
+    ]}
+</pre>
+* get aggregated data for 1 contact via /api/ GET arguments
+<pre>
+    /api/?email=wojcikstefan@gmail.com,stefan_wojcik@o2.pl&phone=+48601941311&twitter=stefanwojcik&facebookUsername=wojcikstefan
+</pre>
+* get a list aggregated data for multiple contacts via /api/get-list/ POST message
+<pre>
+    {'data': [
+        [
+            ['email': 'wojcikstefan@gmail.com'],
+            ['phone': '+48601941311'],
+            ['twitter': 'stefanwojcik'],
+            ['facebookUsername': 'wojcikstefan']
+        ],
+        [
+            ['email': 'someotherdude@gmail.com']
+        ]
+    ]}
+</pre>
+
+The POST requests' content-type should be application/json. For an example how
+to use Webservice API, check out the test_webservice.py file.
+
+
+Terminal
+-------------
 
 To request the data from the terminal, use <code>python fullcontact.py</code> 
 with additional arguments.
@@ -59,7 +97,11 @@ Examples:
 * <code>python fullcontact.py -f csv_with_emails.csv -w url_to_webhook</code>
 * <code>python fullcontact.py -e address@mail.com -p +13037170414 -fb fb_username -w url_to_webhook</code>
 
-To use the fullcontact.py API, you use lists of tuples (type, data) for both lookup request and data retrieval from DB.
+
+Low-level API
+---------------
+
+To use the fullcontact.py Low-level API, you use lists of tuples (type, data) for both lookup request and data retrieval from DB.
 
 Type can be have one of the following values:
 * 'email'
@@ -85,16 +127,17 @@ userdata = aggregate_data(data_list)
 </code>
 </pre>
 
-Testing
----------------
 
-There is a test.py file included for testing purposes. Before you run it, make sure the Flask server is
+Testing Webservice API
+----------------------
+
+There is a test_webservice.py file included for testing purposes. Before you run it, make sure the Flask server is
 working and is public via <i>proxylocal</i>
 
 <pre>
 <code>
 python flask_fullcontact.py
 proxylocal 5000 --host fullcontact
-python test.py
+python test_webservice.py
 </code>
 </pre>

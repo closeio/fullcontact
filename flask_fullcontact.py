@@ -91,26 +91,46 @@ def webhook():
             print 'Status:', data_dict.get('status')
         return "Thanks a lot"
 
-@app.route('/get.json', methods=['POST'])
-def get_json():
-    """ Get JSON data in POST message and return the aggregated result """
-    print 'RECEIVED', request.json.get('data')
-    data_list = request.json.get('data')
-    userdata = aggregate_data(data_list)
-    if userdata:
-        return simplejson.dumps(userdata.data_dict, default=json_util.default)
-    return None
+@app.route('/api/', methods=['GET', 'POST'])
+def api():
+    """ 
+    Return the aggregated result for data sent in GET request or 
+    send a request to Full Contact API for POST request.
+    """
+    if request.method == 'POST':
+        # request data from Full Contact API
+        data_list = request.json.get('data')
+        logs = batch_lookup(data_list, request.url_root + url_for('webhook')[1:])
+        return simplejson.dumps(logs)
+    elif request.method == 'GET' and request.args.items():
+        data_list = request.args.items()
+        # split the arguments of the same type (separated by comma in GET request)
+        for i in range(len(data_list)):
+            if len(data_list[i][1].split(',')) > 1:
+                data_type = data_list[i][0]
+                for data_value in data_list[i][1].split(','):
+                    data_list.append((data_type, data_value))
+                data_list.pop(i)
+        # aggregate the results and return
+        userdata = aggregate_data(data_list)
+        if userdata:
+            return simplejson.dumps(userdata.data_dict, default=json_util.default)
+        return '{}'  # empty dictionary
 
-@app.route('/post.json', methods=['POST'])
-def request_json():
+@app.route('/api/get-list/', methods=['POST'])
+def get_list():
     """
-    Get JSON data in POST message and send a request to Full Contact API.
-    Return statuses of the requests.
+    Get a list of contact data sets (JSON) in POST message and return the
+    aggregated results for each set.
     """
     print 'RECEIVED', request.json.get('data')
-    data_list = request.json.get('data')
-    logs = batch_lookup(data_list, request.url_root + url_for('webhook')[1:])
-    return simplejson.dumps(logs)
+    data_lists = request.json.get('data')
+    userdata = []
+    for data_list in data_lists:
+        userdata.append(aggregate_data(data_list).data_dict)
+    if userdata:
+        return simplejson.dumps(userdata, default=json_util.default)
+    return '[]'  # empty list
 
 
 if __name__ == '__main__':
