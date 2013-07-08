@@ -10,7 +10,7 @@ from models import UserEmailData, UserPhoneData, UserTwitterData, UserFacebookDa
 
 mongoengine.connect('fullcontact') # connect to 'fullcontact' DB
 
-FULL_CONTACT_API_KEY = 'a869e356aca859d6'
+FULL_CONTACT_API_KEY = ''
 
 # data_list should be a list of tuples:
 # ('type', 'data'), e.g.
